@@ -1,8 +1,8 @@
 import {
-  Component,
-  Input,
-  forwardRef,
   ChangeDetectionStrategy,
+  Component,
+  forwardRef,
+  Input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Topping } from '../../models/topping.model';
@@ -14,22 +14,11 @@ const PIZZA_TOPPINGS_ACCESSOR = {
 };
 
 @Component({
-  selector: 'pizza-toppings',
+  selector: 'app-pizza-toppings',
   providers: [PIZZA_TOPPINGS_ACCESSOR],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['pizza-toppings.component.scss'],
-  template: `
-    <div class="pizza-toppings">
-      <div 
-        class="pizza-toppings-item"
-        *ngFor="let topping of toppings;"
-        (click)="selectTopping(topping)"
-        [class.active]="existsInToppings(topping)">
-        <img src="/assets/img/toppings/singles/{{ topping.name }}.svg">
-        {{ topping.name }}
-      </div>
-    </div>
-  `,
+  templateUrl: './pizza-toppings.component.html',
 })
 export class PizzaToppingsComponent implements ControlValueAccessor {
   @Input() toppings: Topping[] = [];

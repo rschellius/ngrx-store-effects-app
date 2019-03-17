@@ -1,29 +1,22 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { Routes, RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { StoreModule, MetaReducer } from '@ngrx/store';
+import { RouterModule, Routes } from '@angular/router';
 import { EffectsModule } from '@ngrx/effects';
-
-// not used in production
+import {
+  RouterStateSerializer,
+  StoreRouterConnectingModule,
+} from '@ngrx/router-store';
+import { MetaReducer, StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { storeFreeze } from 'ngrx-store-freeze';
+import { environment } from '../environments/environment';
+import { AppRouterStateSerializer } from './app-router-state-serializer';
 
-// this would be done dynamically with webpack for builds
-const environment = {
-  development: true,
-  production: false,
-};
+import { AppComponent } from './app.component';
+import { appEffects } from './store-app/app.effect';
+import { appReducers } from './store-app/app.reducer';
 
-export const metaReducers: MetaReducer<any>[] = !environment.production
-  ? [storeFreeze]
-  : [];
-
-// bootstrap
-import { AppComponent } from './containers/app/app.component';
-
-// routes
 export const ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'products' },
   {
@@ -32,16 +25,27 @@ export const ROUTES: Routes = [
   },
 ];
 
+export const metaReducers: MetaReducer<any>[] = !environment.production
+  ? [storeFreeze]
+  : [];
+
 @NgModule({
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    StoreModule.forRoot(appReducers, { metaReducers }),
     RouterModule.forRoot(ROUTES),
-    StoreModule.forRoot({}, { metaReducers }),
-    EffectsModule.forRoot([]),
-    environment.development ? StoreDevtoolsModule.instrument() : [],
+    EffectsModule.forRoot(appEffects),
+    StoreRouterConnectingModule.forRoot(),
+    environment.production ? [] : StoreDevtoolsModule.instrument(),
   ],
-  declarations: [AppComponent],
+  providers: [
+    {
+      provide: RouterStateSerializer,
+      useClass: AppRouterStateSerializer,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
